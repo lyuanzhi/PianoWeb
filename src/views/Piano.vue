@@ -39,13 +39,14 @@
 			<canvas id="canvasBar" :width="windowWidth" :height="Math.round(windowHeight*0.47)"></canvas>
 		</div>
 		<div ref="audioList">
-			<audio v-for="(item2,index2) in keyIndex" :src="'mp3/' + item2 + '.mp3'" :key="index2"></audio>
+			<audio v-for="(item2,index2) in keyIndex" :src="'PianoWeb/mp3/' + item2 + '.mp3'" :key="index2"></audio>
 		</div>
 	</div>
 </template>
 
 <script>
 	export default {
+		name: 'Piano',
 		data() {
 			return {
 				whiteKey: [1, 3, 4, 6, 8, 9, 11, 13, 15, 16, 18, 20, 21, 23, 25, 27, 28, 30, 32, 33, 35, 37, 39, 40, 42,

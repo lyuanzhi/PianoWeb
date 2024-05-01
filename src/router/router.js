@@ -1,19 +1,17 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Router from 'vue-router'
 
-Vue.use(VueRouter)
+Vue.use(Router)
 
-const originalPush = VueRouter.prototype.push
+export const constantRoutes = [
+	{
+		path: '/piano',
+		component: () => import('../views/Piano')
+	}
+]
 
-VueRouter.prototype.push = function push(location) {
-	return originalPush.call(this, location).catch(err => err)
-}
+const routes = [...constantRoutes]
 
-export default new VueRouter({
-	mode: "history",
-	routes: [{
-		path: '/',
-		component: resolve => require(['../views/piano.vue'], resolve),
-		redirect: '/piano'
-	}]
+export default new Router({
+	routes
 })
