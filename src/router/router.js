@@ -12,7 +12,8 @@ VueRouter.prototype.push = function push(location) {
 export default new VueRouter({
 	mode: "history",
 	routes: [{
-		path: '/piano',
-		component: resolve => require(['../views/piano.vue'], resolve)
+		path: '/',
+		component: resolve => require(['../views/piano.vue'], resolve),
+		redirect: '/piano'
 	}]
 })
