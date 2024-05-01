@@ -32,4 +32,4 @@ module.exports = {
 ```
 
 ## Demo Screenshots
-![](imgs/deploynote1.png)
+![](imgs/demo.png)
