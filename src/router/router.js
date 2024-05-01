@@ -5,7 +5,8 @@ Vue.use(Router)
 
 export const constantRoutes = [
 	{
-		path: '/piano',
+		path: '/',
+		redirect: '/piano',
 		component: () => import('../views/Piano')
 	}
 ]

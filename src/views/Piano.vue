@@ -39,7 +39,7 @@
 			<canvas id="canvasBar" :width="windowWidth" :height="Math.round(windowHeight*0.47)"></canvas>
 		</div>
 		<div ref="audioList">
-			<audio v-for="(item2,index2) in keyIndex" :src="'PianoWeb/mp3/' + item2 + '.mp3'" :key="index2"></audio>
+			<audio v-for="(item2,index2) in keyIndex" :src="'mp3/' + item2 + '.mp3'" :key="index2"></audio>
 		</div>
 	</div>
 </template>
