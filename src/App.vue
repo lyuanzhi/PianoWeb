@@ -15,10 +15,13 @@
 <style>
 	body {
 		margin: 0;
+		background: #e7decb;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 
 	#app {
-		font-family: Helvetica, sans-serif;
+		font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", Helvetica, sans-serif;
 		text-align: center;
 	}
 </style>
