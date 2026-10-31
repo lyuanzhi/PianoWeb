@@ -8,6 +8,8 @@
 			</filter>
 		</svg>
 		<canvas class="sky" ref="sky"></canvas>
+		<canvas class="land" ref="land"></canvas>
+		<canvas class="mist" ref="mist"></canvas>
 		<canvas class="fx" ref="fx"></canvas>
 		<div class="vignette"></div>
 		<div class="stage">
@@ -28,7 +30,7 @@
 
 <script>
 	import {INK, PAPER, mulberry32, valueNoise, rgba, smoothstep, makePaper, makeInkSprite} from './ink.js';
-	import InkScene, {SKY_SCALE} from './inkScene.js';
+	import InkScene, {SKY_SCALE, LAND_PAD, LAND_SWAY} from './inkScene.js';
 	import PianoSound from './pianoSound.js';
 
 	const KEY_COUNT = 88;
@@ -144,6 +146,8 @@
 			});
 
 			that.skyContext = that.$refs.sky.getContext('2d');
+			that.landContext = that.$refs.land.getContext('2d');
+			that.mistContext = that.$refs.mist.getContext('2d');
 			that.fxContext = that.$refs.fx.getContext('2d');
 			window.addEventListener('resize', that.onResize);
 			that.onResize();
@@ -224,16 +228,22 @@
 						fadeBottom: Math.max(horizon * 0.65, 41)
 					};
 					let pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-					this.scene.resize({W: this.layout.W, H: this.layout.H, horizon, pixelRatio});
+					// the land is redrawn only when it changes, but it is big, so it is kept a little coarser
+					let landScale = Math.min(pixelRatio, 1.5);
+					this.scene.resize({W: this.layout.W, H: this.layout.H, horizon, pixelRatio, landScale});
 					this.horizonLine = this.makeHorizonLine();
 					this.sizeCanvas(this.$refs.sky, this.skyContext, SKY_SCALE);
+					this.sizeCanvas(this.$refs.land, this.landContext, landScale, LAND_PAD);
+					this.sizeCanvas(this.$refs.mist, this.mistContext, SKY_SCALE);
 					this.sizeCanvas(this.$refs.fx, this.fxContext, pixelRatio);
 				});
 			},
-			sizeCanvas(canvas, ctx, scale) {
-				canvas.width = Math.round(this.layout.W * scale);
-				canvas.height = Math.round(this.layout.H * scale);
-				ctx.setTransform(scale, 0, 0, scale, 0, 0);
+			// pad: extra room around the edges, in css px, for a layer that moves with the mouse
+			sizeCanvas(canvas, ctx, scale, pad) {
+				pad = pad || 0;
+				canvas.width = Math.round((this.layout.W + pad * 2) * scale);
+				canvas.height = Math.round((this.layout.H + pad * 2) * scale);
+				ctx.setTransform(scale, 0, 0, scale, pad * scale, pad * scale);
 			},
 			// a single dry brush line along the top of the keys, painted once per resize
 			makeHorizonLine() {
@@ -266,6 +276,10 @@
 				this.mouse.y += (this.mouse.ty - this.mouse.y) * ease;
 				this.scene.update(dt);
 				this.scene.drawBack(this.skyContext, this.mouse);
+				this.scene.drawLand(this.landContext);
+				// the land only moves with the mouse, which the compositor can do without repainting it
+				this.$refs.land.style.transform = 'translate(' + (-this.mouse.x * LAND_SWAY[0]).toFixed(1) + 'px, ' + (-this.mouse.y * LAND_SWAY[1]).toFixed(1) + 'px)';
+				this.scene.drawMist(this.mistContext, this.mouse);
 				this.drawFx(now, time, dt);
 			},
 			drawFx(now, time, dt) {
@@ -533,6 +547,7 @@
 
 	.paper,
 	.sky,
+	.mist,
 	.fx,
 	.vignette {
 		position: absolute;
@@ -545,6 +560,16 @@
 
 	.paper {
 		background-size: 320px 320px;
+	}
+
+	.land {
+		position: absolute;
+		top: -16px;
+		left: -16px;
+		width: calc(100% + 32px);
+		height: calc(100% + 32px);
+		pointer-events: none;
+		will-change: transform;
 	}
 
 	/* the paper darkens a little towards its edges, over the painting as well */
@@ -589,7 +614,8 @@
 
 	.stage .seal {
 		position: absolute;
-		top: calc(6% + 240px);
+		/* below the peaks, but never down on the keys of a short screen */
+		top: min(calc(6% + 360px), calc(100% - 48px));
 		right: calc(var(--gutter) + 17px);
 		width: 28px;
 		height: 28px;
@@ -715,7 +741,7 @@
 		}
 
 		.stage .seal {
-			top: 12%;
+			top: 18%;
 		}
 	}
 
